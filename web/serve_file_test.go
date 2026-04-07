@@ -1,4 +1,4 @@
-package learn_pzn_web
+package web
 
 import (
 	_ "embed"
