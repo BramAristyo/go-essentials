@@ -17,9 +17,11 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
+	// Initialize the Hub as a long-lived orchestrator to handle asynchronous event multiplexing.
 	hub := newHub()
 	go hub.run()
 
+	// Handle WebSocket upgrade requests, transitioning HTTP connections to full-duplex TCP communication.
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -31,8 +33,10 @@ func main() {
 			hub: hub, conn: conn, send: make(chan []byte, 256),
 		}
 
+		// Enqueue the new client into the Hub's registration system to synchronize session state.
 		client.hub.register <- client
 
+		// Spawn concurrent goroutines for read/write pumps, enabling non-blocking bi-directional throughput.
 		go client.read()
 		go client.write()
 	})

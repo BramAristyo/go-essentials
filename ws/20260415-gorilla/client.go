@@ -14,12 +14,16 @@ const (
 	pingPeriod     = (pongWait * 9) / 10
 )
 
+// Client represents a distinct WebSocket participant, encapsulating the stateful connection
+// and providing a decoupled interface for asynchronous bi-directional communication.
 type Client struct {
 	hub  *Hub
 	conn *websocket.Conn
 	send chan []byte
 }
 
+// read facilitates the ingress of data by continuously monitoring the WebSocket socket.
+// It implements the message-pumping pattern, forwarding raw data to the Hub's broadcast channel.
 func (c *Client) read() {
 	defer func() {
 		c.hub.unregister <- c
@@ -43,6 +47,8 @@ func (c *Client) read() {
 	}
 }
 
+// write implements the egress logic, flushing queued messages from the send channel to the network.
+// It manages heartbeat synchronization via a Ticker to ensure connection persistence.
 func (c *Client) write() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {

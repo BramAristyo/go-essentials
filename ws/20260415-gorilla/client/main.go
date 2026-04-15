@@ -14,6 +14,7 @@ func main() {
 	fmt.Print("Input client initial : ")
 	fmt.Scanln(&clientInitial)
 
+	// Initiate a WebSocket handshake with the server to establish a persistent full-duplex connection.
 	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:9999/ws", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -22,6 +23,7 @@ func main() {
 
 	defer conn.Close()
 
+	// Launch a dedicated goroutine to simulate periodic message ingress, maintaining active interaction.
 	go func() {
 		for {
 			err := conn.WriteMessage(websocket.TextMessage, []byte("Hello world from "+clientInitial))
@@ -35,6 +37,7 @@ func main() {
 		}
 	}()
 
+	// The main execution thread acts as an event listener, processing incoming frames from the server.
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {

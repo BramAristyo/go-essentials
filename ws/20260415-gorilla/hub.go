@@ -4,7 +4,9 @@ import (
 	"log"
 )
 
-// Hub adalah switcher yang ada pada server (kontrol utama) untuk mendafartkan client , mecopot, membroadcast
+// Hub serves as a central message dispatcher and state manager for all active WebSocket connections.
+// It acts as a fan-out controller, orchestrating the distribution of message payloads 
+// while managing client registration and unregistration via synchronized channel operations.
 type Hub struct {
 	clients    map[*Client]bool
 	broadcast  chan []byte
@@ -12,6 +14,8 @@ type Hub struct {
 	unregister chan *Client
 }
 
+// newHub implements the factory pattern, initializing the Hub with thread-safe data structures
+// and buffered channels for optimized asynchronous message passing.
 func newHub() *Hub {
 	return &Hub{
 		clients:    make(map[*Client]bool),
@@ -36,6 +40,7 @@ func (h *Hub) run() {
 			for client := range h.clients {
 				select {
 				case client.send <- message:
+				// Gracefully terminate connections that fail to keep pace with the broadcast frequency.
 				default:
 					close(client.send)
 					delete(h.clients, client)
