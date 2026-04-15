@@ -1,5 +1,10 @@
 package main
 
+import (
+	"log"
+)
+
+// Hub adalah switcher yang ada pada server (kontrol utama) untuk mendafartkan client , mecopot, membroadcast
 type Hub struct {
 	clients    map[*Client]bool
 	broadcast  chan []byte
@@ -27,6 +32,7 @@ func (h *Hub) run() {
 				close(client.send)
 			}
 		case message := <-h.broadcast:
+			log.Printf("Broadcast from client: %s", string(message))
 			for client := range h.clients {
 				select {
 				case client.send <- message:

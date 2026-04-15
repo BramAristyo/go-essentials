@@ -31,8 +31,6 @@ func main() {
 			hub: hub, conn: conn, send: make(chan []byte, 256),
 		}
 
-		hub.broadcast <- []byte("another client joined")
-
 		client.hub.register <- client
 
 		go client.read()

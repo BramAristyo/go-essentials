@@ -9,6 +9,11 @@ import (
 )
 
 func main() {
+
+	var clientInitial string
+	fmt.Print("Input client initial : ")
+	fmt.Scanln(&clientInitial)
+
 	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:9999/ws", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -19,14 +24,14 @@ func main() {
 
 	go func() {
 		for {
-			err := conn.WriteMessage(websocket.TextMessage, []byte("Hello world"))
+			err := conn.WriteMessage(websocket.TextMessage, []byte("Hello world from "+clientInitial))
 
 			if err != nil {
 				log.Fatal(err)
 				return
 			}
 
-			time.Sleep(5 * time.Second)
+			time.Sleep(2 * time.Second)
 		}
 	}()
 
