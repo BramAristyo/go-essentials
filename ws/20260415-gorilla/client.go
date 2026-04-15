@@ -10,7 +10,7 @@ import (
 const (
 	writeWait      = 10 * time.Second
 	maxMessageSize = 512
-	pongWait       = 60 * time.Second
+	pongWait       = 5 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
 )
 
@@ -32,7 +32,11 @@ func (c *Client) read() {
 
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(appData string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	c.conn.SetPongHandler(func(appData string) error {
+		log.Print("Yes, iam!")
+		c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
 
 	for {
 		_, message, err := c.conn.ReadMessage()
@@ -77,6 +81,7 @@ func (c *Client) write() {
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			log.Print("hey client are u still alive ?")
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}

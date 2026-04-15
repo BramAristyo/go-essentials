@@ -33,7 +33,7 @@ func main() {
 				return
 			}
 
-			time.Sleep(2 * time.Second)
+			time.Sleep(20 * time.Second)
 		}
 	}()
 
