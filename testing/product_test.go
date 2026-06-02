@@ -3,6 +3,7 @@ package testing
 import "testing"
 
 func TestCalculateTotal(t *testing.T) {
+
 	products := []Product{
 		{Name: "A", Price: 100},
 		{Name: "B", Price: 200},
