@@ -9,6 +9,7 @@ import (
 
 func writeToWriter(w io.Writer, message string) {
 	w.Write([]byte(message))
+	// hello from main
 }
 
 func main() {
