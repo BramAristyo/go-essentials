@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -57,7 +58,9 @@ func main() {
 
 	go func() {
 		for msg := range msgs {
+			time.Sleep(3 * time.Second)
 			log.Printf("Received: %s", msg.Body)
+			log.Print("Done")
 		}
 	}()
 

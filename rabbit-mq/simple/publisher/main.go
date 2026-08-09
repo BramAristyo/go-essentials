@@ -40,18 +40,21 @@ func main() {
 
 	// publish message to 'hello-queue' queue from default RabbitMQ exchange ""
 	// with body text/plain
-	err = ch.PublishWithContext(ctx,
-		"",
-		"hello-queue",
-		false,
-		false,
-		amqp091.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte("Hello from publisher!"),
-		},
-	)
 
-	if err != nil {
-		log.Fatal(err)
+	for range 3 {
+		err = ch.PublishWithContext(ctx,
+			"",
+			"hello-queue",
+			false,
+			false,
+			amqp091.Publishing{
+				ContentType: "text/plain",
+				Body:        []byte("Hello from publisher!"),
+			},
+		)
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
