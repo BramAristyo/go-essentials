@@ -19,6 +19,14 @@ func main() {
 	}
 	defer ch.Close()
 
+	// configuration prefetch for consumer
+	// only consume (n) message per operation
+	err = ch.Qos(
+		1,
+		0,
+		false,
+	)
+
 	// add more queue declare for type safety
 	// recover error queue not found!
 	_, err = ch.QueueDeclare(
