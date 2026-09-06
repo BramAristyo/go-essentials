@@ -1,0 +1,17 @@
+go 1.26.5
+
+use (
+	./20250819_web
+	./20260407_goroutine-basic
+	./20260415_websocket-gorilla
+	./20260421_goroutine-tiago
+	./20260529_context
+	./20260602_testing
+	./20260603_io-reader-writer
+	./20260605_loop
+	./20260615_channel
+	./20260616_generic
+	./20260628_goroutine-patterns
+	./20260628_mime
+	./20260808_rabbitmq
+)

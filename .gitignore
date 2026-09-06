@@ -1,0 +1,2 @@
+# compiled binaries left by `go build` (named after the module dir)
+/*/20[0-9][0-9][0-9][0-9][0-9][0-9]_*
