@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/BramAristyo/go-essentials/20260906_redis/internal/constants"
 	"github.com/redis/go-redis/v9"
 )
-
-const JOB_KEY = "job_queue"
 
 type RedisHandler struct {
 	rdb *redis.Client
@@ -29,7 +28,7 @@ func (rh *RedisHandler) Push(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := rh.rdb.LPush(r.Context(), JOB_KEY, body.Job).Err()
+	err := rh.rdb.LPush(r.Context(), constants.JOB_KEY, body.Job).Err()
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "failed to push job", http.StatusInternalServerError)
@@ -44,8 +43,38 @@ func (rh *RedisHandler) Push(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (rh *RedisHandler) PushWithType(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Job  string `json:"job"`
+		Type int    `json:"type"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "invalid body", http.StatusBadRequest)
+		return
+	}
+
+	switch body.Type {
+	case 1:
+		err := rh.rdb.LPush(r.Context(), constants.JOB_KEY, body.Job).Err()
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "failed to push job", http.StatusInternalServerError)
+			return
+		}
+	default:
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "success",
+		"job":    body.Job,
+	})
+}
+
 func (rh *RedisHandler) Claim(w http.ResponseWriter, r *http.Request) {
-	result, err := rh.rdb.BRPop(r.Context(), 1, JOB_KEY).Result()
+	result, err := rh.rdb.BRPop(r.Context(), 1, constants.JOB_KEY).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			w.Header().Set("Content-Type", "application/json")
@@ -72,7 +101,7 @@ func (rh *RedisHandler) Claim(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rh *RedisHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	jobs, err := rh.rdb.LRange(r.Context(), JOB_KEY, 0, -1).Result()
+	jobs, err := rh.rdb.LRange(r.Context(), constants.JOB_KEY, 0, -1).Result()
 	if err != nil {
 		http.Error(w, "failed to fetch jobs", http.StatusInternalServerError)
 		return

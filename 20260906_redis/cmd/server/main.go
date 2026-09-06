@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/BramAristyo/go-essentials/20260906_redis/internal/constants"
 	"github.com/BramAristyo/go-essentials/20260906_redis/internal/handler"
+	"github.com/BramAristyo/go-essentials/20260906_redis/internal/worker"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -17,19 +19,22 @@ func main() {
 		Protocol: 2,
 	})
 
-	pong, err := rdb.Ping(context.Background()).Result()
+	err := rdb.Ping(context.Background()).Err()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(pong)
+	w := worker.NewWorker(rdb, constants.JOB_KEY)
+	go w.Run(context.Background())
 
 	redisHandler := handler.NewRedisHandler(rdb)
 
 	http.HandleFunc("POST /jobs", redisHandler.Push)
 	http.HandleFunc("GET /jobs", redisHandler.GetAll)
 	http.HandleFunc("POST /jobs/claim", redisHandler.Claim)
+
+	http.HandleFunc("POST /jobs/with-type", redisHandler.PushWithType)
 
 	defer rdb.Close()
 	if err := http.ListenAndServe(":8000", nil); err != nil {
